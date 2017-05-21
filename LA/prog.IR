@@ -1,0 +1,42 @@
+define void :main(){
+:entry
+%ar <- 0
+type int64[] %ar
+type int64 %arElement
+br :myLabel1
+:myLabel1
+%ar <- new Array(3)
+%isAllocated <- %ar = 0
+br %isAllocated :cmplrabort :cmplrsuccess
+:cmplrabort
+call array-error(0,0)
+:cmplrsuccess
+%prime1 <- 1
+%prime1 <- %prime1 - 1
+%prime1 >> 1
+%l_0 <- length %ar 0
+%l_0 <- 1 < %l_0
+br %l_0 :%success_0 :outOfBounds
+:outOfBounds
+call array-error(%ar, 1)
+:%success_0
+%ar[%prime1] <- 5
+%isAllocated <- %ar = 0
+br %isAllocated :cmplrabort :cmplrsuccess
+:cmplrabort
+call array-error(0,0)
+:cmplrsuccess
+%l_0 <- length %ar 0
+%l_0 <- 1 < %l_0
+br %l_0 :%success_0 :outOfBounds
+:outOfBounds
+call array-error(%ar, 1)
+:%success_0
+%prime1 <- 1
+%prime1 <- %prime1 - 1
+%prime1 >> 1
+%arElement <- %ar[%prime1]
+call print(%arElement)
+return
+}
+}

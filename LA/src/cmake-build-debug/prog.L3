@@ -1,0 +1,8 @@
+define void :main(){
+br :myLabel1
+:myLabel1
+:true
+call print(1)
+return
+}
+}
