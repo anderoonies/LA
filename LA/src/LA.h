@@ -283,7 +283,7 @@ namespace LA {
   };
 
   struct CBranch : public LA_te {
-    Variable condition;
+    LA_item condition;
     LA_item then_dest;
     LA_item else_dest;
     bool is_terminator() { return true; };

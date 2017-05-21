@@ -306,7 +306,7 @@ namespace IR {
       seps,
       pegtl::string< 'b','r' >,
       seps,
-      IR_var_rule,
+      IR_t_rule,
       seps,
       IR_label_rule,
       seps,
@@ -400,8 +400,8 @@ namespace IR {
 
   struct IR_te_rule :
     pegtl::sor<
-      IR_branch_rule,
       IR_conditional_branch_rule,
+      IR_branch_rule,
       IR_returnvalue_rule,
       IR_return_rule
     > {};
@@ -542,7 +542,12 @@ namespace IR {
   
   template< typename Rule >
     struct action : pegtl::nothing< Rule > {};
-  
+
+  template<> struct action < IR_instruction_rule >{
+    static void apply( const pegtl::input &in, IR::Program &p){
+    }
+  };
+
   template<> struct action < IR_char_sequence_rule >{
     static void apply( const pegtl::input &in, IR::Program &p){
       parsed_char_seqs.push_back(in.string()); 
@@ -766,8 +771,8 @@ namespace IR {
       then_dest.name = parsed_labels.end()[-2];
       IR::IR_item else_dest;
       else_dest.name = parsed_labels.end()[-1];
-      shared_ptr<IR::Variable> condition = parsed_variables.at(0);
-      cbranch->condition = *condition;
+      IR::IR_t condition = parsed_t_vals.at(0);
+      cbranch->condition = condition;
       cbranch->then_dest = then_dest;
       cbranch->else_dest = else_dest;
       add_instruction(p, cbranch);

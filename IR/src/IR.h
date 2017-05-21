@@ -167,7 +167,7 @@ namespace IR {
   };
 
   struct CBranch : public IR_te {
-    Variable condition;
+    IR_t condition;
     IR_item then_dest;
     IR_item else_dest;
   };
