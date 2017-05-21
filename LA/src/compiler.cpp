@@ -76,6 +76,20 @@ void encode_vars(vector<LA::LA_item> vars, ofstream &output) {
   }
 };
 
+bool is_number(const std::string& s)
+{
+  std::string::const_iterator it = s.begin();
+  while (it != s.end() && std::isdigit(*it)) ++it;
+  return !s.empty() && it == s.end();
+}
+
+string safe_encode_constant(string in) {
+  if (is_number(in))
+    return to_string(encode(stoi(in)));
+  else
+    return in;
+}
+
 void Compiler::Compile(LA::Program p) {
   ofstream output;
   output.open("prog.IR");
@@ -94,7 +108,7 @@ void Compiler::Compile(LA::Program p) {
       // write the instructions one by one!
       if (shared_ptr<LA::Assignment> assn = dynamic_pointer_cast<LA::Assignment>(i))
       {
-        output << assn->lhs.name << " <- " << assn->rhs.name << endl;
+        output << assn->lhs.name << " <- " << safe_encode_constant(assn->rhs.name) << endl;
       }
       else if (shared_ptr<LA::Operation> op = dynamic_pointer_cast<LA::Operation>(i))
       {
@@ -139,7 +153,8 @@ void Compiler::Compile(LA::Program p) {
         vector<LA::LA_item> vars_to_decode = op->toDecode();
         vector<string> replacements = decode_vars(f, vars_to_decode, output);
         shared_ptr<LA::Operation> decoded_op = op->decode(replacements);
-        output << decoded_op->lhs.name << " <- " << decoded_op->op_lhs.name << " " << op_string << " " << decoded_op->op_rhs.name << endl;
+        output << decoded_op->lhs.name << " <- ";
+        output << safe_encode_constant(decoded_op->op_lhs.name) << " " << op_string << " " << safe_encode_constant(decoded_op->op_rhs.name) << endl;
       }
       else if (shared_ptr<LA::Return> ret = dynamic_pointer_cast<LA::Return>(i))
       {
@@ -153,7 +168,7 @@ void Compiler::Compile(LA::Program p) {
       }
       else if (shared_ptr<LA::ReturnValue> retv = dynamic_pointer_cast<LA::ReturnValue>(i))
       {
-        output << "return " << retv->value.name << endl;
+        output << "return " << safe_encode_constant(retv->value.name) << endl;
       }
       else if (shared_ptr<LA::Label> label = dynamic_pointer_cast<LA::Label>(i))
       {
@@ -168,7 +183,8 @@ void Compiler::Compile(LA::Program p) {
         vector<LA::LA_item> vars_to_decode = cbranch->toDecode();
         vector<string> replacements = decode_vars(f, vars_to_decode, output);
         shared_ptr<LA::CBranch> decoded_cbranch = cbranch->decode(replacements);
-        output << "br " << decoded_cbranch->condition.name << " " << decoded_cbranch->then_dest.name << " " << decoded_cbranch->else_dest.name << endl;
+        output << "br " << safe_encode_constant(decoded_cbranch->condition.name);
+        output << " " << decoded_cbranch->then_dest.name << " " << decoded_cbranch->else_dest.name << endl;
       }
       else if (shared_ptr<LA::Call> call = dynamic_pointer_cast<LA::Call>(i))
       {
@@ -176,7 +192,7 @@ void Compiler::Compile(LA::Program p) {
           call->callee.name.erase(0,1);
         output << "call " << call->callee.name << "(";
         for (int arg_i = 0; arg_i < call->args.size(); arg_i++) {
-          output << call->args[arg_i].name;
+          output << safe_encode_constant(call->args[arg_i].name);
           if (arg_i < call->args.size() - 1)
             output << ", ";
         }
@@ -189,7 +205,7 @@ void Compiler::Compile(LA::Program p) {
           call->callee.name.erase(0,1);
         output << "call " << call->callee.name << "(";
         for (int arg_i = 0; arg_i < call->args.size(); arg_i++) {
-          output << call->args[arg_i].name;
+          output << safe_encode_constant(call->args[arg_i].name);
           if (arg_i < call->args.size() - 1)
             output << ", ";
         }
@@ -203,7 +219,7 @@ void Compiler::Compile(LA::Program p) {
       {
         output << alloc->lhs.name << " <- " << "new Array(";
         for (int i = 0; i < alloc->dimensions.size(); i++) {
-          output << alloc->dimensions.at(i).name;
+          output << safe_encode_constant(alloc->dimensions.at(i).name);
           if (i < alloc->dimensions.size() - 1)
             output << ", ";
         }
@@ -237,7 +253,7 @@ void Compiler::Compile(LA::Program p) {
         for (int index_i = 0; index_i < decoded_write->indices.size(); index_i++) {
           output << "[" << decoded_write->indices.at(index_i).name << "]";
         }
-        output << " <- " << decoded_write->rhs.name;
+        output << " <- " << safe_encode_constant(decoded_write->rhs.name);
         output << endl;
       }
       else if (shared_ptr<LA::IndexRead> read = dynamic_pointer_cast<LA::IndexRead>(i))
@@ -280,7 +296,7 @@ void Compiler::Compile(LA::Program p) {
         string v0 = get_free_var("v0", f);
         string v1 = get_free_var("v1", f);
         string v2 = get_free_var("v2", f);
-        output << v0 << " <- " << decoded_lr->index.name << " * 8\n";
+        output << v0 << " <- " << safe_encode_constant(decoded_lr->index.name) << " * 8\n";
         output << v1 << " <- " << v0 << " + 16\n";
         output << v2 << " <- " << decoded_lr->rhs.name << " + " << v1 << endl;
         output << decoded_lr->lhs.name << " <- load " << v2 << endl;
@@ -288,7 +304,6 @@ void Compiler::Compile(LA::Program p) {
     }
     output << "}\n";
   }
-  output << "}\n";
   return;
 };
 
@@ -313,7 +328,7 @@ LA::Program Compiler::Block(LA::Program p) {
         newInsts.push_back(g);
       }
       newInsts.push_back(inst);
-      if (inst->terminator) {
+      if (inst->is_terminator()) {
         startBB = true;
       }
     }
