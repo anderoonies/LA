@@ -54,28 +54,6 @@ int64_t get_dimensionality(shared_ptr<LA::Function> f, string variable_name) {
   return -1;
 };
 
-vector<string> decode_vars(shared_ptr<LA::Function> f, vector<LA::LA_item> vars, ofstream &output) {
-  vector<string> replacements;
-  for (auto v : vars) {
-    string v_name = v.name;
-    if (v_name.at(0) == '%')
-      v_name.erase(0,1);
-    string v_prime = get_free_var("prime" + v_name, f);
-    replacements.push_back(v_prime);
-    output << v_prime << " <- " << v.name << endl;
-    output << v_prime << " <- " << v_prime << " - 1\n";
-    output << v_prime << " >> 1\n";
-  }
-  return replacements;
-};
-
-void encode_vars(vector<LA::LA_item> vars, ofstream &output) {
-  for (auto v : vars) {
-    output << v.name << " << 1\n";
-    output << v.name << " <- " << v.name << " + 1\n";
-  }
-};
-
 bool is_number(const std::string& s)
 {
   std::string::const_iterator it = s.begin();
@@ -89,6 +67,27 @@ string safe_encode_constant(string in) {
   else
     return in;
 }
+
+vector<string> decode_vars(shared_ptr<LA::Function> f, vector<LA::LA_item> vars, ofstream &output) {
+  vector<string> replacements;
+  for (auto v : vars) {
+    string v_name = v.name;
+    if (v_name.at(0) == '%')
+      v_name.erase(0,1);
+    string v_prime = get_free_var("prime" + v_name, f);
+    replacements.push_back(v_prime);
+    output << v_prime << " <- " << safe_encode_constant(v.name) << endl;
+    output << v_prime << " >> 1\n";
+  }
+  return replacements;
+};
+
+void encode_vars(vector<LA::LA_item> vars, ofstream &output) {
+  for (auto v : vars) {
+    output << v.name << " << 1\n";
+    output << v.name << " <- " << v.name << " + 1\n";
+  }
+};
 
 void Compiler::Compile(LA::Program p) {
   ofstream output;
