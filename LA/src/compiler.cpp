@@ -77,7 +77,7 @@ vector<string> decode_vars(shared_ptr<LA::Function> f, vector<LA::LA_item> vars,
     string v_prime = get_free_var("prime" + v_name, f);
     replacements.push_back(v_prime);
     output << v_prime << " <- " << safe_encode_constant(v.name) << endl;
-    output << v_prime << " >> 1\n";
+    output << v_prime << " <- " << v_prime << " >> 1\n";
   }
   return replacements;
 };
