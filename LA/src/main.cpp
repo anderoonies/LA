@@ -44,6 +44,8 @@ int main( int argc, char **argv ){
 
   // parse program
   LA::Program p = LA::LA_parse_file(argv[optind]);
+  // block it
+  p = Compiler::Block(p);
   // compile and dump it to the outfile
   Compiler::Compile(p);
 

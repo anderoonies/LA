@@ -215,6 +215,8 @@ void Compiler::Compile(LA::Program p) {
         // checking allocation
         string isAllocated = get_free_var("isAllocated", f);
         output << isAllocated << " <- " << write->lhs.name << " = 0\n";
+        string abort = get_free_var("abort", f);
+        string success = get_free_var("abort", f);
         output << "br " << isAllocated << " :cmplrabort :cmplrsuccess\n";
         output << ":cmplrabort\ncall array-error(0,0)\n:cmplrsuccess\n";
         vector<LA::LA_item> vars_to_decode = write->toDecode();
@@ -288,4 +290,41 @@ void Compiler::Compile(LA::Program p) {
   }
   output << "}\n";
   return;
+};
+
+LA::Program Compiler::Block(LA::Program p) {
+  LA::Program newP;
+  for (auto f : p.functions) {
+    bool startBB = true;
+    vector<shared_ptr<LA::Instruction>> newInsts;
+    for (auto inst : f->instructions) {
+      if (startBB) {
+        shared_ptr<LA::Label> lbl = dynamic_pointer_cast<LA::Label>(inst);
+        if (lbl == NULL) {
+          string label_var = get_free_var("entry", f);
+          shared_ptr<LA::Label> L = make_shared<LA::Label>();
+          L->label.name = ':' + label_var.erase(0, 1);
+          newInsts.push_back(L);
+        }
+        startBB = false;
+      } else if (shared_ptr<LA::Label> lbl = dynamic_pointer_cast<LA::Label>(inst)) {
+        shared_ptr<LA::Branch> g = make_shared<LA::Branch>();
+        g->dest.name = lbl->label.name;
+        newInsts.push_back(g);
+      }
+      newInsts.push_back(inst);
+      if (inst->terminator) {
+        startBB = true;
+      }
+    }
+    shared_ptr<LA::Function> newF = make_shared<LA::Function>();
+    newF->return_type = f->return_type;
+    newF->name = f->name;
+    newF->vars = f->vars;
+    newF->blocks = f->blocks;
+    newF->instructions = newInsts;
+    newF->data_structs = f->data_structs;
+    newP.functions.push_back(newF);
+  }
+  return newP;
 };

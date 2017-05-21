@@ -72,6 +72,7 @@ namespace LA {
     virtual shared_ptr<Instruction> decode() {return nullptr;};
     virtual vector<LA_item> toEncode() {return {};};
     virtual shared_ptr<Instruction> encode() {return nullptr;};
+    bool terminator = false;
   };
 
   struct Declaration : public Instruction {
@@ -273,16 +274,19 @@ namespace LA {
     }
   };
 
-  struct LA_te : public Instruction {};
+  struct LA_te : public Instruction {
+  };
 
   struct Branch : public LA_te {
     LA_item dest;
+    bool termininator = true;
   };
 
   struct CBranch : public LA_te {
     Variable condition;
     LA_item then_dest;
     LA_item else_dest;
+    bool termininator = true;
 
     bool contains(string v) {
       return condition.name == v;
@@ -302,10 +306,13 @@ namespace LA {
     }
   };
 
-  struct Return : public LA_te {};
+  struct Return : public LA_te {
+    bool termininator = true;
+  };
 
   struct ReturnValue : public LA_te {
     LA_t value;
+    bool termininator = true;
   };
 
   struct BasicBlock {
