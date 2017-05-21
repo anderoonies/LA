@@ -163,7 +163,7 @@ void Compiler::Compile(LA::Program p) {
       {
         // TODO add the type to the function
         add_declaration(f, dec, output);
-        output << "type " << dec->type.type_string << " " << dec->var.name << endl;
+        output << dec->type.type_string << " " << dec->var.name << endl;
       }
       else if (shared_ptr<LA::ReturnValue> retv = dynamic_pointer_cast<LA::ReturnValue>(i))
       {
