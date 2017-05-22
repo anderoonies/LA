@@ -82,10 +82,10 @@ vector<string> decode_vars(shared_ptr<LA::Function> f, vector<LA::LA_item> vars,
   return replacements;
 };
 
-void encode_vars(vector<LA::LA_item> vars, ofstream &output) {
+void encode_vars(vector<string> vars, ofstream &output) {
   for (auto v : vars) {
-    output << v.name << " << 1\n";
-    output << v.name << " <- " << v.name << " + 1\n";
+    output << v << " << 1\n";
+    output << v << " <- " << v << " + 1\n";
   }
 };
 
@@ -154,6 +154,7 @@ void Compiler::Compile(LA::Program p) {
         shared_ptr<LA::Operation> decoded_op = op->decode(replacements);
         output << decoded_op->lhs.name << " <- ";
         output << safe_encode_constant(decoded_op->op_lhs.name) << " " << op_string << " " << safe_encode_constant(decoded_op->op_rhs.name) << endl;
+        encode_vars({decoded_op->lhs.name}, output);
       }
       else if (shared_ptr<LA::Return> ret = dynamic_pointer_cast<LA::Return>(i))
       {
