@@ -538,6 +538,7 @@ namespace IR {
     parsed_indices.clear();
     parsed_array_declaration_dimension = -1;
     parsed_declarations.clear();
+    parsed_labels.clear();
   }
   
   template< typename Rule >
@@ -784,7 +785,8 @@ namespace IR {
       static void apply( const pegtl::input &in, IR::Program &p){
         shared_ptr<IR::Label> label = make_shared<IR::Label>();
         IR::IR_item lbl;
-        lbl.name = parsed_variables.back()->name;
+        cout << in.string() << endl;
+        lbl.name = parsed_labels.back();
         label->label = lbl;
         add_instruction(p, label);
         clear_memory();

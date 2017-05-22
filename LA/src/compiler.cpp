@@ -241,7 +241,7 @@ void Compiler::Compile(LA::Program p) {
         string success = ":success" + op_hash;
         output << isAllocated << " <- " << write->lhs.name << " = 0\n";
         output << "br " << isAllocated << " " << success << " " << abort << endl;
-        output << abort << endl << "call array-error(0,0)" << endl << success << endl;
+        output << abort << endl << "call array-error(0, 0)" << endl << success << endl;
         vector<LA::LA_item> vars_to_decode = write->toDecode();
         vector<string> replacements = decode_vars(f, vars_to_decode, output);
         shared_ptr<LA::IndexWrite> decoded_write = write->decode(replacements);
@@ -278,7 +278,7 @@ void Compiler::Compile(LA::Program p) {
         string success = ":success" + op_hash;
         output << isAllocated << " <- " << read->rhs.name << " = 0\n";
         output << "br " << isAllocated << " " << success << " " << abort << endl;
-        output << abort << endl << "call array-error(0,0)" << endl << success << endl;
+        output << abort << endl << "call array-error(0, 0)" << endl << success << endl;
         // checking indexing
         string out_of_bounds;
         string len_var;
@@ -314,7 +314,7 @@ void Compiler::Compile(LA::Program p) {
         string success = ":success" + op_hash;
         output << isAllocated << " <- " << read->rhs.name << " = 0\n";
         output << "br " << isAllocated << " " << success << " " << abort << endl;
-        output << abort << endl << "call array-error(0,0)" << endl << success << endl;
+        output << abort << endl << "call array-error(0, 0)" << endl << success << endl;
         vector<LA::LA_item> vars_to_decode = lr->toDecode();
         vector<string> replacements = decode_vars(f, vars_to_decode, output);
         shared_ptr<LA::LengthRead> decoded_lr = lr->decode(replacements);
