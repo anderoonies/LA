@@ -7,6 +7,12 @@
 
 using namespace std;
 
+int hash_id = 0;
+
+string get_hash() {
+  return "id_" + to_string(hash_id++);
+}
+
 int encode(int n) {
   return (n << 1) + 1;
 };
@@ -76,7 +82,7 @@ vector<string> decode_vars(shared_ptr<LA::Function> f, vector<LA::LA_item> vars,
       v_name.erase(0,1);
     string v_prime = get_free_var("prime" + v_name, f);
     replacements.push_back(v_prime);
-    output << v_prime << " <- " << v.name << endl;
+    output << v_prime << " <- " << safe_encode_constant(v.name) << endl;
     output << v_prime << " <- " << v_prime << " >> 1\n";
   }
   return replacements;
@@ -230,24 +236,31 @@ void Compiler::Compile(LA::Program p) {
       {
         // checking allocation
         string isAllocated = get_free_var("isAllocated", f);
+        string op_hash = get_hash();
+        string abort = ":abort" + op_hash;
+        string success = ":success" + op_hash;
         output << isAllocated << " <- " << write->lhs.name << " = 0\n";
-        string abort = get_free_var("abort", f);
-        string success = get_free_var("abort", f);
-        output << "br " << isAllocated << " :cmplrabort :cmplrsuccess\n";
-        output << ":cmplrabort\ncall array-error(0,0)\n:cmplrsuccess\n";
+        output << "br " << isAllocated << " " << success << " " << abort << endl;
+        output << abort << endl << "call array-error(0,0)" << endl << success << endl;
         vector<LA::LA_item> vars_to_decode = write->toDecode();
         vector<string> replacements = decode_vars(f, vars_to_decode, output);
         shared_ptr<LA::IndexWrite> decoded_write = write->decode(replacements);
         // checking indexing
-        string out_of_bounds = get_free_var("outOfBounds", f).erase(0, 1);
+        string out_of_bounds;
+        string len_var;
+        string encoded_index;
         for (int index_i = 0; index_i < write->indices.size(); index_i++) {
-          string len_var = get_free_var("l_" + to_string(index_i), f);
-          string success = get_free_var("success_" + to_string(index_i), f);
+          out_of_bounds = ":out_of_bounds_" + to_string(index_i) + op_hash;
+          len_var = "l_" + to_string(index_i) + op_hash;
+          success = ":success_" + to_string(index_i) + op_hash;
+          encoded_index = "encoded_" + to_string(index_i) + op_hash;
+          output << encoded_index << " <- " << write->indices.at(index_i).name << endl;
+          encode_vars({encoded_index}, output);
           output << len_var << " <- length " << write->lhs.name << " " << index_i << endl;
-          output << len_var << " <- " << write->indices.at(index_i).name << " < " << len_var << endl;
-          output << "br " << len_var << " :" << success << " :" << out_of_bounds << endl;
-          output << ":" << out_of_bounds << "\ncall array-error(" << write->lhs.name << ", " << write->indices.at(index_i).name << ")\n";
-          output << ":" << success << endl;
+          output << len_var << " <- " << encoded_index << " < " << len_var << endl;
+          output << "br " << len_var << " " << success << " " << out_of_bounds << endl;
+          output << out_of_bounds << "\ncall array-error(" << write->lhs.name << ", " << encoded_index << ")\n";
+          output << success << endl;
         }
         output << decoded_write->lhs.name;
         for (int index_i = 0; index_i < decoded_write->indices.size(); index_i++) {
@@ -260,19 +273,28 @@ void Compiler::Compile(LA::Program p) {
       {
         // checking allocation
         string isAllocated = get_free_var("isAllocated", f);
+        string op_hash = get_hash();
+        string abort = ":abort" + op_hash;
+        string success = ":success" + op_hash;
         output << isAllocated << " <- " << read->rhs.name << " = 0\n";
-        output << "br " << isAllocated << " :cmplrabort :cmplrsuccess\n";
-        output << ":cmplrabort\ncall array-error(0,0)\n:cmplrsuccess\n";
+        output << "br " << isAllocated << " " << success << " " << abort << endl;
+        output << abort << endl << "call array-error(0,0)" << endl << success << endl;
         // checking indexing
-        string out_of_bounds = get_free_var("outOfBounds", f).erase(0, 1);
+        string out_of_bounds;
+        string len_var;
+        string encoded_index;
         for (int index_i = 0; index_i < read->indices.size(); index_i++) {
-          string len_var = get_free_var("l_" + to_string(index_i), f);
-          string success = get_free_var("success_" + to_string(index_i), f);
+          out_of_bounds = ":out_of_bounds_" + to_string(index_i) + op_hash;
+          len_var = "l_" + to_string(index_i) + op_hash;
+          success = ":success_" + to_string(index_i) + op_hash;
+          encoded_index = "encoded_" + to_string(index_i) + op_hash;
+          output << encoded_index << " <- " << read->indices.at(index_i).name << endl;
+          encode_vars({encoded_index}, output);
           output << len_var << " <- length " << read->rhs.name << " " << index_i << endl;
-          output << len_var << " <- " << read->indices.at(index_i).name << " < " << len_var << endl;
-          output << "br " << len_var << " :" << success << " :" << out_of_bounds << endl;
-          output << ":" << out_of_bounds << "\ncall array-error(" << read->rhs.name << ", " << read->indices.at(index_i).name << ")\n";
-          output << ":" << success << endl;
+          output << len_var << " <- " << encoded_index << " < " << len_var << endl;
+          output << "br " << len_var << " " << success << " " << out_of_bounds << endl;
+          output << out_of_bounds << "\ncall array-error(" << read->rhs.name << ", " << encoded_index << ")\n";
+          output << success << endl;
         }
         vector<LA::LA_item> vars_to_decode = read->toDecode();
         vector<string> replacements = decode_vars(f, vars_to_decode, output);
@@ -287,9 +309,12 @@ void Compiler::Compile(LA::Program p) {
       {
         //checking allocation
         string isAllocated = get_free_var("isAllocated", f);
-        output << isAllocated << " <- " << lr->rhs.name << " = 0\n";
-        output << "br " << isAllocated << " :cmplrabort :cmplrsuccess\n";
-        output << ":cmplrabort\ncall array-error(0,0)\n:cmplrsuccess\n";
+        string op_hash = get_hash();
+        string abort = ":abort" + op_hash;
+        string success = ":success" + op_hash;
+        output << isAllocated << " <- " << read->rhs.name << " = 0\n";
+        output << "br " << isAllocated << " " << success << " " << abort << endl;
+        output << abort << endl << "call array-error(0,0)" << endl << success << endl;
         vector<LA::LA_item> vars_to_decode = lr->toDecode();
         vector<string> replacements = decode_vars(f, vars_to_decode, output);
         shared_ptr<LA::LengthRead> decoded_lr = lr->decode(replacements);
