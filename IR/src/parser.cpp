@@ -782,7 +782,7 @@ namespace IR {
 
   template<> struct action < IR_i_label_rule >{
       static void apply( const pegtl::input &in, IR::Program &p){
-        shared_ptr<IR::Label> label = shared_ptr<IR::Label>();
+        shared_ptr<IR::Label> label = make_shared<IR::Label>();
         IR::IR_item lbl;
         lbl.name = parsed_variables.back()->name;
         label->label = lbl;
