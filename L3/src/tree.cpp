@@ -163,16 +163,16 @@ vector<shared_ptr<tree::Tree>> generate_forest(L3::Function f, string fun_id){
 }
 
 shared_ptr<tree::Tree> merge_trees(shared_ptr<tree::Tree> tree1, shared_ptr<tree::Tree> tree2) {
-  if (!(tree1->root == nullptr || tree2->lhs == nullptr) &&
-      (*tree1->root == *tree2->lhs->root)) {
-    tree2->lhs = tree1;
-    return tree2;
-  }
-  if (!(tree1->root == nullptr || tree2->rhs == nullptr) &&
-      (*tree1->root == *tree2->rhs->root)) {
-    tree2->rhs = tree1;
-    return tree2;
-  }
+  //if (!(tree1->root == nullptr || tree2->lhs == nullptr) &&
+  //    (*tree1->root == *tree2->lhs->root)) {
+  //  tree2->lhs = tree1;
+  //  return tree2;
+  //}
+  //if (!(tree1->root == nullptr || tree2->rhs == nullptr) &&
+  //    (*tree1->root == *tree2->rhs->root)) {
+  //  tree2->rhs = tree1;
+  //  return tree2;
+  //}
   if (!(tree1->lhs == nullptr || tree2->root == nullptr) &&
       (*tree1->lhs->root == *tree2->root))
   {

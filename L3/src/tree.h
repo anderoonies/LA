@@ -26,12 +26,12 @@ namespace tree {
       vector<L3::Instruction *> instructions;
 
       bool sharesNode(shared_ptr<Tree> other_tree) {
-        if (!(root == nullptr || other_tree->lhs == nullptr) &&
-                (*root == *other_tree->lhs->root))
-          return true;
-        if (!(root == nullptr || other_tree->rhs == nullptr) &&
-            (*root == *other_tree->rhs->root))
-          return true;
+        //if (!(root == nullptr || other_tree->lhs == nullptr) &&
+        //        (*root == *other_tree->lhs->root))
+        //  return true;
+        //if (!(root == nullptr || other_tree->rhs == nullptr) &&
+        //    (*root == *other_tree->rhs->root))
+        //  return true;
         if (!(lhs == nullptr || other_tree->root == nullptr) &&
             (*lhs->root == *other_tree->root))
           return true;
