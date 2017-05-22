@@ -306,6 +306,5 @@ void Compiler::Compile(IR::Program p) {
     }
     output << "}\n";
   }
-  output << "}\n";
   return;
 };
