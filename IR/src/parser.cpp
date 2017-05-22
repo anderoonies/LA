@@ -786,7 +786,6 @@ namespace IR {
       static void apply( const pegtl::input &in, IR::Program &p){
         shared_ptr<IR::Label> label = make_shared<IR::Label>();
         IR::IR_item lbl;
-        cout << in.string() << endl;
         lbl.name = parsed_labels.back();
         label->label = lbl;
         add_instruction(p, label);
