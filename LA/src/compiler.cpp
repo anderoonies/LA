@@ -253,7 +253,7 @@ void Compiler::Compile(LA::Program p) {
           out_of_bounds = ":out_of_bounds_" + to_string(index_i) + op_hash;
           len_var = "l_" + to_string(index_i) + op_hash;
           success = ":success_" + to_string(index_i) + op_hash;
-          encoded_index = "encoded_" + to_string(index_i) + op_hash;
+          encoded_index = "%encoded_" + to_string(index_i) + op_hash;
           output << encoded_index << " <- " << write->indices.at(index_i).name << endl;
           encode_vars({encoded_index}, output);
           output << len_var << " <- length " << write->lhs.name << " " << index_i << endl;
@@ -287,7 +287,7 @@ void Compiler::Compile(LA::Program p) {
           out_of_bounds = ":out_of_bounds_" + to_string(index_i) + op_hash;
           len_var = "l_" + to_string(index_i) + op_hash;
           success = ":success_" + to_string(index_i) + op_hash;
-          encoded_index = "encoded_" + to_string(index_i) + op_hash;
+          encoded_index = "%encoded_" + to_string(index_i) + op_hash;
           output << encoded_index << " <- " << read->indices.at(index_i).name << endl;
           encode_vars({encoded_index}, output);
           output << len_var << " <- length " << read->rhs.name << " " << index_i << endl;
