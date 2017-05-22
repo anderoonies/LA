@@ -219,7 +219,7 @@ void Compiler::Compile(LA::Program p) {
       }
       else if (shared_ptr<LA::TupleAllocate> alloc = dynamic_pointer_cast<LA::TupleAllocate>(i))
       {
-        output << alloc->lhs.name << " <- call allocate(" << alloc->dimension.name << ", 1)\n";
+        output << alloc->lhs.name << " <- call allocate(" << safe_encode_constant(alloc->dimension.name) << ", 1)\n";
       }
       else if (shared_ptr<LA::ArrayAllocate> alloc = dynamic_pointer_cast<LA::ArrayAllocate>(i))
       {
