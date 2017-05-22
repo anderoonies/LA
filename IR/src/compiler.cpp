@@ -274,7 +274,12 @@ void Compiler::Compile(IR::Program p) {
             output << "store " << addr << " <- " << write->rhs.name << endl;
           } else {
             string newVar = get_free_var("newVar", f);
-            output << newVar << " <- " << write->lhs.name << " + " << 8 * (1 + stoi(write->indices.at(0).name)) << endl;
+            string index = get_free_var("tupleIndex", f);
+            output << index << " <- " << write->indices.at(0).name << endl;
+            output << index << " <- " << index << " + 1\n";
+            output << index << " <- " << index << " * 8\n";
+            output << newVar << " <- " << index << endl;
+            output << newVar << " <- " << write->lhs.name << " + " << index << endl;
             output << "store " << newVar << " <- " << write->rhs.name << endl;
           }
         }
@@ -288,7 +293,12 @@ void Compiler::Compile(IR::Program p) {
             output << read->lhs.name << " <- load " << addr << endl;
           } else {
             string newVar = get_free_var("newVar", f);
-            output << newVar << " <- " << read->rhs.name << " + " << 8 * (1 + stoi(read->indices.at(0).name)) << endl;
+            string index = get_free_var("tupleIndex", f);
+            output << index << " <- " << write->indices.at(0).name << endl;
+            output << index << " <- " << index << " + 1\n";
+            output << index << " <- " << index << " * 8\n";
+            output << newVar << " <- " << index << endl;
+            output << newVar << " <- " << read->rhs.name << " + " << index << endl;
             output << read->lhs.name << " <- load " << newVar << endl;
           }
         }
