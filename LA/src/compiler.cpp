@@ -84,7 +84,7 @@ vector<string> decode_vars(shared_ptr<LA::Function> f, vector<LA::LA_item> vars,
 
 void encode_vars(vector<string> vars, ofstream &output) {
   for (auto v : vars) {
-    output << v << " << 1\n";
+    output << v << " <- " << v << " << 1\n";
     output << v << " <- " << v << " + 1\n";
   }
 };
