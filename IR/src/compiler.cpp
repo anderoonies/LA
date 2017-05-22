@@ -294,7 +294,7 @@ void Compiler::Compile(IR::Program p) {
           } else {
             string newVar = get_free_var("newVar", f);
             string index = get_free_var("tupleIndex", f);
-            output << index << " <- " << write->indices.at(0).name << endl;
+            output << index << " <- " << read->indices.at(0).name << endl;
             output << index << " <- " << index << " + 1\n";
             output << index << " <- " << index << " * 8\n";
             output << newVar << " <- " << index << endl;
