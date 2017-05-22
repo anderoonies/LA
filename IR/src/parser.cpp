@@ -460,6 +460,7 @@ namespace IR {
 
   struct IR_function_rule :
     pegtl::seq<
+      seps,
       pegtl::string< 'd','e','f','i','n','e' >,
       seps,
       IR_T_rule,
