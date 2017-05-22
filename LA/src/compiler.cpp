@@ -50,6 +50,10 @@ vector<string> get_free_vars(string seed, int n_vars, shared_ptr<LA::Function> f
 
 void add_declaration(shared_ptr<LA::Function> f, shared_ptr<LA::Declaration> dec, ofstream &output) {
   f->data_structs.insert(pair<string, shared_ptr<LA::Declaration>>(dec->var.name, dec));
+  return;
+};
+
+void allocate_to_zero(shared_ptr<LA::Function> f, shared_ptr<LA::Declaration> dec, ofstream &output) {
   // to check for allocation
   if (dec->type.data_type == LA::array || dec->type.data_type == LA::tuple)
     output << dec->var.name << " <- 0\n";
@@ -170,6 +174,7 @@ void Compiler::Compile(LA::Program p) {
       {
         // TODO add the type to the function
         add_declaration(f, dec, output);
+        allocate_to_zero(f, dec, output);
         output << dec->type.type_string << " " << dec->var.name << endl;
       }
       else if (shared_ptr<LA::ReturnValue> retv = dynamic_pointer_cast<LA::ReturnValue>(i))
