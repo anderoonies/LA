@@ -174,12 +174,9 @@ namespace tile {
         }
 
         vector<string> dump_instructions() {
-          if (tree->op == tree::rshift || tree->op == tree::lshift) {
-            return {"(" + tree->root->item.name + " " + op_string + " " + tree->rhs->root->item.name + ")"};
-          } else {
-            return {"(" + tree->root->item.name + " <- " + tree->lhs->root->item.name + ")",
-                    "(" + tree->root->item.name + " " + op_string + " " + tree->rhs->root->item.name + ")"};
-          }
+          return {"(" + tree->root->item.name + " <- " + tree->lhs->root->item.name + ")",
+                  "(" + tree->root->item.name + " " + op_string + " " + tree->rhs->root->item.name + ")"};
+          
         }
 
         vector<shared_ptr<tree::Tree>> get_subtrees() {
