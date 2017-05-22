@@ -9,9 +9,7 @@ vector<shared_ptr<tile::Tile>> tile_shelf = {make_shared<tile::Return>(), make_s
                                              make_shared<tile::Comparison>(), make_shared<tile::Branch>(),
                                              make_shared<tile::ConditionalBranch>(), make_shared<tile::Call>(),
                                              make_shared<tile::CallAssign>(),
-                                             make_shared<tile::Inc>(), make_shared<tile::Dec>(),
                                              make_shared<tile::Load>(), make_shared<tile::Store>(),
-                                             make_shared<tile::LoadOffset>(),
                                              make_shared<tile::Label>()};
 
 vector<shared_ptr<tile::Tile>> tile_tree(shared_ptr<tree::Tree> tree) {
