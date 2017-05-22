@@ -1,1 +1,13 @@
+/*
+!.gitignore
+!/LA/src/*.cpp
+!/LA/src/*.h
+!/IR/src/*.cpp
+!/IR/src/*.h
+!/L3/src/*.cpp
+!/L3/src/*.h
+!/L2/src/*.cpp
+!/L2/src/*.h
+!/L1/src/*.cpp
+!/L1/src/*.h
 
