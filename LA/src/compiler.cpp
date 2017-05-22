@@ -108,7 +108,7 @@ void Compiler::Compile(LA::Program p) {
     output << "define " << f->return_type.to_string() << " :" << f->name << "(";
     for (int var_i = 0; var_i < f->vars.size(); var_i++) {
       add_declaration(f, f->vars[var_i], output);
-      output << f->vars[var_i]->var.name;
+      output << f->vars[var_i]->type.to_string() << " " << f->vars[var_i]->var.name;
       if (var_i < f->vars.size() - 1)
         output << ", ";
     }
@@ -228,7 +228,7 @@ void Compiler::Compile(LA::Program p) {
       }
       else if (shared_ptr<LA::TupleAllocate> alloc = dynamic_pointer_cast<LA::TupleAllocate>(i))
       {
-        output << alloc->lhs.name << " <- call allocate(" << safe_encode_constant(alloc->dimension.name) << ", 1)\n";
+        output << alloc->lhs.name << " <- new Tuple(" << safe_encode_constant(alloc->dimension.name) << ")\n";
       }
       else if (shared_ptr<LA::ArrayAllocate> alloc = dynamic_pointer_cast<LA::ArrayAllocate>(i))
       {
