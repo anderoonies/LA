@@ -201,6 +201,8 @@ void Compiler::Compile(LA::Program p) {
       {
         if (call->callee.name[0] == '%')
           call->callee.name.erase(0,1);
+        if (call->callee.name != "array-error" && call->callee.name != "print")
+          call->callee.name = ':' + call->callee.name;
         output << "call " << call->callee.name << "(";
         for (int arg_i = 0; arg_i < call->args.size(); arg_i++) {
           output << safe_encode_constant(call->args[arg_i].name);
@@ -214,6 +216,8 @@ void Compiler::Compile(LA::Program p) {
         output << call->lhs.name << " <- ";
         if (call->callee.name[0] == '%')
           call->callee.name.erase(0,1);
+        if (call->callee.name != "array-error" && call->callee.name != "print")
+          call->callee.name = ':' + call->callee.name;
         output << "call " << call->callee.name << "(";
         for (int arg_i = 0; arg_i < call->args.size(); arg_i++) {
           output << safe_encode_constant(call->args[arg_i].name);
