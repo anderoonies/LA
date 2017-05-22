@@ -174,8 +174,12 @@ namespace tile {
         }
 
         vector<string> dump_instructions() {
-          return {"(" + tree->root->item.name + " <- " + tree->lhs->root->item.name + ")",
-                  "(" + tree->root->item.name + " " + op_string + " " + tree->rhs->root->item.name + ")"};
+          if (tree->op == tree::rshift || tree->op == tree::lshift) {
+            return {"(" + tree->root->item.name + " " + op_string + " " + tree->rhs->root->item.name + ")"};
+          } else {
+            return {"(" + tree->root->item.name + " <- " + tree->lhs->root->item.name + ")",
+                    "(" + tree->root->item.name + " " + op_string + " " + tree->rhs->root->item.name + ")"};
+          }
         }
 
         vector<shared_ptr<tree::Tree>> get_subtrees() {
@@ -502,113 +506,113 @@ namespace tile {
         };
     };
 
-    struct Inc : virtual Tile {
-        int coverage(shared_ptr<tree::Tree> tree) {
-          if (covers(tree)) {
-            return tree->n_ops + 1;
-          }
-          return 0;
-        }
+   // struct Inc : virtual Tile {
+   //     int coverage(shared_ptr<tree::Tree> tree) {
+   //       if (covers(tree)) {
+   //         return tree->n_ops + 1;
+   //       }
+   //       return 0;
+   //     }
 
-        bool covers(shared_ptr<tree::Tree> tree) {
-          if (tree->op == tree::add &&
-              tree->root->item.name == tree->lhs->root->item.name &
-              tree->rhs->root->item.name == "1") {
-            return true;
-          }
-          return false;
-        }
+   //     bool covers(shared_ptr<tree::Tree> tree) {
+   //       if (tree->op == tree::add &&
+   //           tree->root->item.name == tree->lhs->root->item.name &
+   //           tree->rhs->root->item.name == "1") {
+   //         return true;
+   //       }
+   //       return false;
+   //     }
 
-        shared_ptr<tile::Tile> fire(shared_ptr<tree::Tree> tree) {
-          shared_ptr<Inc> fired_tile = make_shared<Inc>();
-          fired_tile->tree = tree;
-          return fired_tile;
-        }
+   //     shared_ptr<tile::Tile> fire(shared_ptr<tree::Tree> tree) {
+   //       shared_ptr<Inc> fired_tile = make_shared<Inc>();
+   //       fired_tile->tree = tree;
+   //       return fired_tile;
+   //     }
 
-        vector<string> dump_instructions() {
-          return {"(" + tree->root->item.name + "++)"};
-        }
+   //     vector<string> dump_instructions() {
+   //       return {"(" + tree->root->item.name + "++)"};
+   //     }
 
-        vector<shared_ptr<tree::Tree>> get_subtrees() {
-          return {tree->lhs, tree->rhs};
-        };
-    };
+   //     vector<shared_ptr<tree::Tree>> get_subtrees() {
+   //       return {tree->lhs, tree->rhs};
+   //     };
+   // };
 
-    struct Dec : virtual Tile {
-        int coverage(shared_ptr<tree::Tree> tree) {
-          if (covers(tree)) {
-            return tree->n_ops + 1;
-          }
-          return 0;
-        }
+   // struct Dec : virtual Tile {
+   //     int coverage(shared_ptr<tree::Tree> tree) {
+   //       if (covers(tree)) {
+   //         return tree->n_ops + 1;
+   //       }
+   //       return 0;
+   //     }
 
-        bool covers(shared_ptr<tree::Tree> tree) {
-          if (tree->op == tree::sub &&
-              tree->root->item.name == tree->lhs->root->item.name &
-              tree->rhs->root->item.name == "1") {
-            return true;
-          }
-          return false;
-        }
+   //     bool covers(shared_ptr<tree::Tree> tree) {
+   //       if (tree->op == tree::sub &&
+   //           tree->root->item.name == tree->lhs->root->item.name &
+   //           tree->rhs->root->item.name == "1") {
+   //         return true;
+   //       }
+   //       return false;
+   //     }
 
-        shared_ptr<tile::Tile> fire(shared_ptr<tree::Tree> tree) {
-          shared_ptr<Dec> fired_tile = make_shared<Dec>();
-          fired_tile->tree = tree;
-          return fired_tile;
-        }
+   //     shared_ptr<tile::Tile> fire(shared_ptr<tree::Tree> tree) {
+   //       shared_ptr<Dec> fired_tile = make_shared<Dec>();
+   //       fired_tile->tree = tree;
+   //       return fired_tile;
+   //     }
 
-        vector<string> dump_instructions() {
-          return {"(" + tree->root->item.name + "--)"};
-        }
+   //     vector<string> dump_instructions() {
+   //       return {"(" + tree->root->item.name + "--)"};
+   //     }
 
-        vector<shared_ptr<tree::Tree>> get_subtrees() {
-          return {tree->lhs, tree->rhs};
-        };
-    };
+   //     vector<shared_ptr<tree::Tree>> get_subtrees() {
+   //       return {tree->lhs, tree->rhs};
+   //     };
+   // };
 
-    struct LoadOffset : virtual Tile {
-        // this helps.
-        bool is_number(const string& s) {
-          return !s.empty() && find_if(s.begin(), s.end(), [](char c) { return !isdigit(c); }) == s.end();
-        }
-        bool valid_offset(shared_ptr<tree::Tree> tree) {
-          if (tree->op != tree::add)
-            return false;
-          if (is_number(tree->rhs->root->item.name) &&
-              stoi(tree->rhs->root->item.name) % 8 == 0)
-            return true;
-          return false;
-        }
-        int coverage(shared_ptr<tree::Tree> tree) {
-          if (covers(tree)) {
-            return tree->n_ops + 3;
-          }
-          return 0;
-        }
+   // struct LoadOffset : virtual Tile {
+   //     // this helps.
+   //     bool is_number(const string& s) {
+   //       return !s.empty() && find_if(s.begin(), s.end(), [](char c) { return !isdigit(c); }) == s.end();
+   //     }
+   //     bool valid_offset(shared_ptr<tree::Tree> tree) {
+   //       if (tree->op != tree::add)
+   //         return false;
+   //       if (is_number(tree->rhs->root->item.name) &&
+   //           stoi(tree->rhs->root->item.name) % 8 == 0)
+   //         return true;
+   //       return false;
+   //     }
+   //     int coverage(shared_ptr<tree::Tree> tree) {
+   //       if (covers(tree)) {
+   //         return tree->n_ops + 3;
+   //       }
+   //       return 0;
+   //     }
 
-        bool covers(shared_ptr<tree::Tree> tree) {
-          if (tree->op == tree::load &&
-               tree->lhs->op == tree::add &&
-               valid_offset(tree->lhs)) {
-            return true;
-          }
-          return false;
-        }
+   //     bool covers(shared_ptr<tree::Tree> tree) {
+   //       if (tree->op == tree::load &&
+   //            tree->lhs->op == tree::add &&
+   //            valid_offset(tree->lhs)) {
+   //         return true;
+   //       }
+   //       return false;
+   //     }
 
-        shared_ptr<tile::Tile> fire(shared_ptr<tree::Tree> tree) {
-          shared_ptr<LoadOffset> fired_tile = make_shared<LoadOffset>();
-          fired_tile->tree = tree;
-          return fired_tile;
-        }
+   //     shared_ptr<tile::Tile> fire(shared_ptr<tree::Tree> tree) {
+   //       shared_ptr<LoadOffset> fired_tile = make_shared<LoadOffset>();
+   //       fired_tile->tree = tree;
+   //       return fired_tile;
+   //     }
 
-        vector<string> dump_instructions() {
-          return {"(" + tree->root->item.name + " <- (mem " + tree->lhs->lhs->root->item.name + " " + tree->lhs->rhs->root->item.name + "))"};
-        }
+   //     vector<string> dump_instructions() {
+   //       return {"(" + tree->root->item.name + " <- (mem " + tree->lhs->lhs->root->item.name + " " + tree->lhs->rhs->root->item.name + "))"};
+   //     }
 
-        vector<shared_ptr<tree::Tree>> get_subtrees() {
-          return {nullptr};
-        };
-    };
+   //     vector<shared_ptr<tree::Tree>> get_subtrees() {
+   //       return {nullptr};
+   //     };
+   // };
 }
 
 vector<vector<shared_ptr<tile::Tile>>> tile_forest(vector<shared_ptr<tree::Tree>> forest);
