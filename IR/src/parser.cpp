@@ -530,7 +530,7 @@ namespace IR {
   Type parsed_type;
   IR_item parsed_T;
   IR_t parsed_length_index;
-  shared_ptr<IR::Variable> parsed_length_rhs;
+  IR::Variable parsed_length_rhs;
   shared_ptr<BasicBlock> parsed_basic_block;
 
   /////////////
@@ -881,15 +881,13 @@ namespace IR {
 
   template<> struct action < length_rhs_rule >{
     static void apply( const pegtl::input &in, IR::Program &p){
-      parsed_length_rhs->name = in.string();
-      clear_memory();
+      parsed_length_rhs.name = in.string();
     }
   };
 
   template<> struct action < length_index_rule >{
     static void apply( const pegtl::input &in, IR::Program &p){
       parsed_length_index.name = in.string();
-      clear_memory();
     }
   };
 
@@ -897,7 +895,7 @@ namespace IR {
     static void apply( const pegtl::input &in, IR::Program &p){
       shared_ptr<IR::LengthRead> lr = make_shared<IR::LengthRead>();
       lr->lhs = *parsed_variables.at(0);
-      lr->rhs = *parsed_length_rhs;
+      lr->rhs = parsed_length_rhs;
       lr->index = parsed_length_index;
       add_instruction(p, lr);
       clear_memory();
