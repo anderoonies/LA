@@ -258,7 +258,7 @@ L2::Liveness liveness_analysis(L2::Function *f) {
         GEN.back().insert(load->rhs.value.name);
     }
     else if (L2::Store *store = dynamic_cast<L2::Store *>(i)) {
-      if (store->rhs.r)
+      if (store->rhs.r || store->rhs.name[0] == '_')
         GEN.back().insert(store->rhs.name);
       if (store->lhs.value.name != "rsp")
         GEN.back().insert(store->lhs.value.name);
