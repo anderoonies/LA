@@ -881,13 +881,13 @@ namespace IR {
 
   template<> struct action < length_rhs_rule >{
     static void apply( const pegtl::input &in, IR::Program &p){
-      parsed_length_rhs.name = in.string();
+      parsed_length_rhs = *parsed_variables.back();
     }
   };
 
   template<> struct action < length_index_rule >{
     static void apply( const pegtl::input &in, IR::Program &p){
-      parsed_length_index.name = in.string();
+      parsed_length_index = parsed_t_vals.back();
     }
   };
 
