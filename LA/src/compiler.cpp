@@ -292,7 +292,7 @@ void Compiler::Compile(LA::Program p) {
       else if (shared_ptr<LA::IndexRead> read = dynamic_pointer_cast<LA::IndexRead>(i))
       {
         bool isArray = false;
-        auto data_iter = f->data_structs.find(read->lhs.name);
+        auto data_iter = f->data_structs.find(read->rhs.name);
         if (data_iter->second->type.data_type == LA::array)
           isArray = true;
         // checking allocation
