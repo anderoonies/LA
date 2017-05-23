@@ -278,9 +278,9 @@ void Compiler::Compile(LA::Program p) {
             // make vars
             out_of_bounds = ":out_of_bounds_" + to_string(index_i) + op_hash;
             success = ":success_" + to_string(index_i) + op_hash;
-            encoded_index = "%encoded_" + to_string(index_i) + op_hash;
+            encoded_index = "%encoded_idx_cmplr";
             // fetch the length of the dimension (as encoded) into len_var
-            len_var = "%l_" + to_string(index_i) + op_hash;
+            len_var = "%len_var_cmplr";
             output << len_var << " <- length " << write->lhs.name << " " << index_i << endl;
             // encode the value of the index we're using
             output << encoded_index << " <- " << write->indices.at(index_i).name << endl;
@@ -322,9 +322,9 @@ void Compiler::Compile(LA::Program p) {
             // make vars
             out_of_bounds = ":out_of_bounds_" + to_string(index_i) + op_hash;
             success = ":success_" + to_string(index_i) + op_hash;
-            encoded_index = "%encoded_" + to_string(index_i) + op_hash;
+            encoded_index = "%encoded_idx_cmplr";
             // fetch the length of the dimension (as encoded) into len_var
-            len_var = "%l_" + to_string(index_i) + op_hash;
+            len_var = "%len_var_cmplr";
             output << len_var << " <- length " << read->rhs.name << " " << index_i << endl;
             // encode the value of the index we're using
             output << encoded_index << " <- " << read->indices.at(index_i).name << endl;
