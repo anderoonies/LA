@@ -304,8 +304,6 @@ void Compiler::Compile(LA::Program p) {
           // fetch the length of the dimension (as encoded) into len_var
           len_var = "%l_" + to_string(index_i) + op_hash;
           output << len_var << " <- length " << read->rhs.name << " " << index_i << endl;
-          // print it
-          output << "call print(" << len_var << ")\n";
           // encode the value of the index we're using
           output << encoded_index << " <- " << read->indices.at(index_i).name << endl;
           encode_vars({encoded_index}, output);
