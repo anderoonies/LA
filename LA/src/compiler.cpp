@@ -357,13 +357,7 @@ void Compiler::Compile(LA::Program p) {
         vector<LA::LA_item> vars_to_decode = lr->toDecode();
         vector<string> replacements = decode_vars(f, vars_to_decode, output);
         shared_ptr<LA::LengthRead> decoded_lr = lr->decode(replacements);
-        string v0 = get_free_var("v0", f);
-        string v1 = get_free_var("v1", f);
-        string v2 = get_free_var("v2", f);
-        output << v0 << " <- " << safe_encode_constant(decoded_lr->index.name) << " * 8\n";
-        output << v1 << " <- " << v0 << " + 16\n";
-        output << v2 << " <- " << decoded_lr->rhs.name << " + " << v1 << endl;
-        output << decoded_lr->lhs.name << " <- load " << v2 << endl;
+        output << decoded_lr->lhs.name << " <- length " << decoded_lr->rhs.name << " " << decoded_lr->index.name << endl;
       }
     }
     output << "}\n";
