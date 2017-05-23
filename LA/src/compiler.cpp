@@ -199,9 +199,14 @@ void Compiler::Compile(LA::Program p) {
       }
       else if (shared_ptr<LA::Call> call = dynamic_pointer_cast<LA::Call>(i))
       {
+        auto data_iter = f->data_structs.find(call->callee.name);
+        bool is_code = false;
+        if (data_iter != f->data_structs.end())
+          if (data_iter->second->type.data_type == LA::code)
+            is_code = true;
         if (call->callee.name[0] == '%')
           call->callee.name.erase(0,1);
-        if (call->callee.name != "array-error" && call->callee.name != "print")
+        if (call->callee.name != "array-error" && call->callee.name != "print" && !is_code)
           call->callee.name = ':' + call->callee.name;
         output << "call " << call->callee.name << "(";
         for (int arg_i = 0; arg_i < call->args.size(); arg_i++) {
@@ -213,10 +218,15 @@ void Compiler::Compile(LA::Program p) {
       }
       else if (shared_ptr<LA::CallAssign> call = dynamic_pointer_cast<LA::CallAssign>(i))
       {
+        auto data_iter = f->data_structs.find(call->callee.name);
+        bool is_code = false;
+        if (data_iter != f->data_structs.end())
+          if (data_iter->second->type.data_type == LA::code)
+            is_code = true;
         output << call->lhs.name << " <- ";
         if (call->callee.name[0] == '%')
           call->callee.name.erase(0,1);
-        if (call->callee.name != "array-error" && call->callee.name != "print")
+        if (call->callee.name != "array-error" && call->callee.name != "print" && !is_code)
           call->callee.name = ':' + call->callee.name;
         output << "call " << call->callee.name << "(";
         for (int arg_i = 0; arg_i < call->args.size(); arg_i++) {
