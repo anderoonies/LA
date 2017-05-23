@@ -278,9 +278,9 @@ void Compiler::Compile(LA::Program p) {
             // make vars
             out_of_bounds = ":out_of_bounds_" + to_string(index_i) + op_hash;
             success = ":success_" + to_string(index_i) + op_hash;
-            encoded_index = "%encoded_idx_cmplr";
+            encoded_index = "%encoded_idx_cmplr" + op_hash;
             // fetch the length of the dimension (as encoded) into len_var
-            len_var = "%len_var_cmplr";
+            len_var = "%len_var_cmplr" + op_hash;
             output << len_var << " <- length " << write->lhs.name << " " << index_i << endl;
             // encode the value of the index we're using
             output << encoded_index << " <- " << write->indices.at(index_i).name << endl;
@@ -322,9 +322,9 @@ void Compiler::Compile(LA::Program p) {
             // make vars
             out_of_bounds = ":out_of_bounds_" + to_string(index_i) + op_hash;
             success = ":success_" + to_string(index_i) + op_hash;
-            encoded_index = "%encoded_idx_cmplr";
+            encoded_index = "%encoded_idx_cmplr" + op_hash;
             // fetch the length of the dimension (as encoded) into len_var
-            len_var = "%len_var_cmplr";
+            len_var = "%len_var_cmplr" + op_hash;
             output << len_var << " <- length " << read->rhs.name << " " << index_i << endl;
             // encode the value of the index we're using
             output << encoded_index << " <- " << read->indices.at(index_i).name << endl;
@@ -352,7 +352,7 @@ void Compiler::Compile(LA::Program p) {
         string op_hash = get_hash();
         string abort = ":abort" + op_hash;
         string success = ":success" + op_hash;
-        output << isAllocated << " <- " << read->rhs.name << " = 0\n";
+        output << isAllocated << " <- " << lr->rhs.name << " = 0\n";
         output << "br " << isAllocated << " " << success << " " << abort << endl;
         output << abort << endl << "call array-error(0, 0)" << endl << success << endl;
         vector<LA::LA_item> vars_to_decode = lr->toDecode();
