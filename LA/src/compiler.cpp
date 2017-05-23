@@ -204,7 +204,7 @@ void Compiler::Compile(LA::Program p) {
         if (data_iter != f->data_structs.end())
           if (data_iter->second->type.data_type == LA::code)
             is_code = true;
-        if (call->callee.name[0] == '%')
+        if (call->callee.name[0] == '%' && !is_code)
           call->callee.name.erase(0,1);
         if (call->callee.name != "array-error" && call->callee.name != "print" && !is_code)
           call->callee.name = ':' + call->callee.name;
@@ -224,7 +224,7 @@ void Compiler::Compile(LA::Program p) {
           if (data_iter->second->type.data_type == LA::code)
             is_code = true;
         output << call->lhs.name << " <- ";
-        if (call->callee.name[0] == '%')
+        if (call->callee.name[0] == '%' && !is_code)
           call->callee.name.erase(0,1);
         if (call->callee.name != "array-error" && call->callee.name != "print" && !is_code)
           call->callee.name = ':' + call->callee.name;
