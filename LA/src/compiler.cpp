@@ -244,6 +244,10 @@ void Compiler::Compile(LA::Program p) {
       else if (shared_ptr<LA::IndexWrite> write = dynamic_pointer_cast<LA::IndexWrite>(i))
       {
         // checking allocation
+        bool isArray = false;
+        auto data_iter = f->data_structs.find(write->lhs.name);
+        if (data_iter->second->type.data_type == LA::array)
+          isArray = true;
         string isAllocated = get_free_var("isAllocated", f);
         string op_hash = get_hash();
         string abort = ":abort" + op_hash;
@@ -254,26 +258,29 @@ void Compiler::Compile(LA::Program p) {
         vector<LA::LA_item> vars_to_decode = write->toDecode();
         vector<string> replacements = decode_vars(f, vars_to_decode, output);
         shared_ptr<LA::IndexWrite> decoded_write = write->decode(replacements);
-        // checking indexing
-        string out_of_bounds;
-        string len_var;
-        string encoded_index;
-        for (int index_i = 0; index_i < write->indices.size(); index_i++) {
-          // make vars
-          out_of_bounds = ":out_of_bounds_" + to_string(index_i) + op_hash;
-          success = ":success_" + to_string(index_i) + op_hash;
-          encoded_index = "%encoded_" + to_string(index_i) + op_hash;
-          // fetch the length of the dimension (as encoded) into len_var
-          len_var = "%l_" + to_string(index_i) + op_hash;
-          output << len_var << " <- length " << write->lhs.name << " " << index_i << endl;
-          // encode the value of the index we're using
-          output << encoded_index << " <- " << write->indices.at(index_i).name << endl;
-          encode_vars({encoded_index}, output);
-          // compare the length of the dimension to the index
-          output << len_var << " <- " << encoded_index << " < " << len_var << endl;
-          output << "br " << len_var << " " << success << " " << out_of_bounds << endl;
-          output << out_of_bounds << "\ncall array-error(" << write->lhs.name << ", " << encoded_index << ")\n";
-          output << success << endl;
+        if (isArray) {
+          // checking indexing
+          // only necessary for arrays
+          string out_of_bounds;
+          string len_var;
+          string encoded_index;
+          for (int index_i = 0; index_i < write->indices.size(); index_i++) {
+            // make vars
+            out_of_bounds = ":out_of_bounds_" + to_string(index_i) + op_hash;
+            success = ":success_" + to_string(index_i) + op_hash;
+            encoded_index = "%encoded_" + to_string(index_i) + op_hash;
+            // fetch the length of the dimension (as encoded) into len_var
+            len_var = "%l_" + to_string(index_i) + op_hash;
+            output << len_var << " <- length " << write->lhs.name << " " << index_i << endl;
+            // encode the value of the index we're using
+            output << encoded_index << " <- " << write->indices.at(index_i).name << endl;
+            encode_vars({encoded_index}, output);
+            // compare the length of the dimension to the index
+            output << len_var << " <- " << encoded_index << " < " << len_var << endl;
+            output << "br " << len_var << " " << success << " " << out_of_bounds << endl;
+            output << out_of_bounds << "\ncall array-error(" << write->lhs.name << ", " << encoded_index << ")\n";
+            output << success << endl;
+          }
         }
         output << decoded_write->lhs.name;
         for (int index_i = 0; index_i < decoded_write->indices.size(); index_i++) {
@@ -284,6 +291,10 @@ void Compiler::Compile(LA::Program p) {
       }
       else if (shared_ptr<LA::IndexRead> read = dynamic_pointer_cast<LA::IndexRead>(i))
       {
+        bool isArray = false;
+        auto data_iter = f->data_structs.find(read->lhs.name);
+        if (data_iter->second->type.data_type == LA::array)
+          isArray = true;
         // checking allocation
         string isAllocated = get_free_var("isAllocated", f);
         string op_hash = get_hash();
@@ -292,26 +303,28 @@ void Compiler::Compile(LA::Program p) {
         output << isAllocated << " <- " << read->rhs.name << " = 0\n";
         output << "br " << isAllocated << " " << abort << " " << success << endl;
         output << abort << endl << "call array-error(0, 0)" << endl << success << endl;
-        // checking indexing
-        string out_of_bounds;
-        string len_var;
-        string encoded_index;
-        for (int index_i = 0; index_i < read->indices.size(); index_i++) {
-          // make vars
-          out_of_bounds = ":out_of_bounds_" + to_string(index_i) + op_hash;
-          success = ":success_" + to_string(index_i) + op_hash;
-          encoded_index = "%encoded_" + to_string(index_i) + op_hash;
-          // fetch the length of the dimension (as encoded) into len_var
-          len_var = "%l_" + to_string(index_i) + op_hash;
-          output << len_var << " <- length " << read->rhs.name << " " << index_i << endl;
-          // encode the value of the index we're using
-          output << encoded_index << " <- " << read->indices.at(index_i).name << endl;
-          encode_vars({encoded_index}, output);
-          // compare the length of the dimension to the index
-          output << len_var << " <- " << encoded_index << " < " << len_var << endl;
-          output << "br " << len_var << " " << success << " " << out_of_bounds << endl;
-          output << out_of_bounds << "\ncall array-error(" << read->rhs.name << ", " << encoded_index << ")\n";
-          output << success << endl;
+        if (isArray) {
+          // checking indexing
+          string out_of_bounds;
+          string len_var;
+          string encoded_index;
+          for (int index_i = 0; index_i < read->indices.size(); index_i++) {
+            // make vars
+            out_of_bounds = ":out_of_bounds_" + to_string(index_i) + op_hash;
+            success = ":success_" + to_string(index_i) + op_hash;
+            encoded_index = "%encoded_" + to_string(index_i) + op_hash;
+            // fetch the length of the dimension (as encoded) into len_var
+            len_var = "%l_" + to_string(index_i) + op_hash;
+            output << len_var << " <- length " << read->rhs.name << " " << index_i << endl;
+            // encode the value of the index we're using
+            output << encoded_index << " <- " << read->indices.at(index_i).name << endl;
+            encode_vars({encoded_index}, output);
+            // compare the length of the dimension to the index
+            output << len_var << " <- " << encoded_index << " < " << len_var << endl;
+            output << "br " << len_var << " " << success << " " << out_of_bounds << endl;
+            output << out_of_bounds << "\ncall array-error(" << read->rhs.name << ", " << encoded_index << ")\n";
+            output << success << endl;
+          }
         }
         vector<LA::LA_item> vars_to_decode = read->toDecode();
         vector<string> replacements = decode_vars(f, vars_to_decode, output);
