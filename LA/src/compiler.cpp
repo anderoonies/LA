@@ -347,13 +347,13 @@ void Compiler::Compile(LA::Program p) {
       else if (shared_ptr<LA::LengthRead> lr = dynamic_pointer_cast<LA::LengthRead>(i))
       {
         //checking allocation
-        string isAllocated = get_free_var("isAllocated", f);
-        string op_hash = get_hash();
-        string abort = ":abort" + op_hash;
-        string success = ":success" + op_hash;
-        output << isAllocated << " <- " << lr->rhs.name << " = 0\n";
-        output << "br " << isAllocated << " " << success << " " << abort << endl;
-        output << abort << endl << "call array-error(0, 0)" << endl << success << endl;
+        //string isAllocated = get_free_var("isAllocated", f);
+        //string op_hash = get_hash();
+        //string abort = ":abort" + op_hash;
+        //string success = ":success" + op_hash;
+        //output << isAllocated << " <- " << lr->rhs.name << " = 0\n";
+        //output << "br " << isAllocated << " " << success << " " << abort << endl;
+        //output << abort << endl << "call array-error(0, 0)" << endl << success << endl;
         vector<LA::LA_item> vars_to_decode = lr->toDecode();
         vector<string> replacements = decode_vars(f, vars_to_decode, output);
         shared_ptr<LA::LengthRead> decoded_lr = lr->decode(replacements);
