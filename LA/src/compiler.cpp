@@ -259,13 +259,17 @@ void Compiler::Compile(LA::Program p) {
         string len_var;
         string encoded_index;
         for (int index_i = 0; index_i < write->indices.size(); index_i++) {
+          // make vars
           out_of_bounds = ":out_of_bounds_" + to_string(index_i) + op_hash;
-          len_var = "%l_" + to_string(index_i) + op_hash;
           success = ":success_" + to_string(index_i) + op_hash;
           encoded_index = "%encoded_" + to_string(index_i) + op_hash;
+          // fetch the length of the dimension (as encoded) into len_var
+          len_var = "%l_" + to_string(index_i) + op_hash;
+          output << len_var << " <- length " << write->lhs.name << " " << index_i << endl;
+          // encode the value of the index we're using
           output << encoded_index << " <- " << write->indices.at(index_i).name << endl;
           encode_vars({encoded_index}, output);
-          output << len_var << " <- length " << write->lhs.name << " " << index_i << endl;
+          // compare the length of the dimension to the index
           output << len_var << " <- " << encoded_index << " < " << len_var << endl;
           output << "br " << len_var << " " << success << " " << out_of_bounds << endl;
           output << out_of_bounds << "\ncall array-error(" << write->lhs.name << ", " << encoded_index << ")\n";
@@ -293,13 +297,19 @@ void Compiler::Compile(LA::Program p) {
         string len_var;
         string encoded_index;
         for (int index_i = 0; index_i < read->indices.size(); index_i++) {
+          // make vars
           out_of_bounds = ":out_of_bounds_" + to_string(index_i) + op_hash;
-          len_var = "%l_" + to_string(index_i) + op_hash;
           success = ":success_" + to_string(index_i) + op_hash;
           encoded_index = "%encoded_" + to_string(index_i) + op_hash;
+          // fetch the length of the dimension (as encoded) into len_var
+          len_var = "%l_" + to_string(index_i) + op_hash;
+          output << len_var << " <- length " << read->rhs.name << " " << index_i << endl;
+          // print it
+          output << "call print(" << len_var << ")\n";
+          // encode the value of the index we're using
           output << encoded_index << " <- " << read->indices.at(index_i).name << endl;
           encode_vars({encoded_index}, output);
-          output << len_var << " <- length " << read->rhs.name << " " << index_i << endl;
+          // compare the length of the dimension to the index
           output << len_var << " <- " << encoded_index << " < " << len_var << endl;
           output << "br " << len_var << " " << success << " " << out_of_bounds << endl;
           output << out_of_bounds << "\ncall array-error(" << read->rhs.name << ", " << encoded_index << ")\n";
