@@ -186,6 +186,13 @@ namespace L2 {
       seps
     > {};
 
+  struct runtimename_rule:
+    pegtl::sor<
+      pegtl::string< 'p', 'r', 'i', 'n', 't' >,
+      pegtl::string< 'a','l','l','o','c','a','t','e'>,
+      pegtl::string< 'a','r','r','a','y','-','e','r','r','o','r'>
+    > {};
+
   struct L2_runtimecall_rule:
     pegtl::seq<
       seps,
@@ -193,7 +200,7 @@ namespace L2 {
       seps,
       pegtl::string< 'c', 'a', 'l', 'l' >,
       seps,
-      L2_string_rule,
+      runtimename_rule,
       seps,
       functioncall_argument_number,
       seps,
@@ -1084,6 +1091,14 @@ namespace L2 {
       fCall->function_name = parsed_u_vals.back();
       fCall->n_args = parsed_n_vals.back();
       p.functions.back()->instructions.push_back(fCall);
+    }
+  };
+
+  template<> struct action < runtimename_rule > {
+    static void apply( const pegtl::input & in, L2::Program & p){
+      L2::L2_item name;
+      name.name = in.string();
+      parsed_registers.push_back(name);
     }
   };
 
